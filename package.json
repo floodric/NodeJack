@@ -1,0 +1,8 @@
+{
+  "name":"nodejack",
+  "version": "0.0.1",
+  "author": "floodric",
+  "dependencies": {
+    "express":"*"
+  }
+}
