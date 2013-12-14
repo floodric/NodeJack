@@ -1,0 +1,16 @@
+
+<div class="pure-menu pure-menu-open pure-menu-horizontal">
+  <a href="/" class="pure-menu-heading">NodeJack</a>
+
+  <ul>
+    <li><a href="/">Home</a></li>
+    <li><a href="/play">Play</a></li>
+    <li><a href="/scores">High Scores</a></li>
+    <% if(user){ %>
+      <li><a href="/account"><%= user.username %></a></li>
+    <% } else { %>
+      <li><a href="/login">Login</a></li>
+    <% } %>
+  </ul>
+</div>
+
