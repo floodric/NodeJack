@@ -3,7 +3,10 @@
   "version": "0.0.1",
   "author": "floodric",
   "dependencies": {
-    "express":"*",
-    "socket.io","*"
+    "express":"3.*",
+    "socket.io":"*",
+    "bcrypt":"*",
+    "ejs":"*",
+    "mongodb":"*"
   }
 }
