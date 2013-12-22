@@ -2,6 +2,9 @@ var bcrypt = require('bcrypt');
 var mongo = require('mongodb');
 var mongoClient = mongo.MongoClient;
 
+//@TODO remove our dumb list of users here
+var users = [];
+
 // checkuser: validate assumptions about user, return list of errors
 function checkUser(user){
   var errs = [];
@@ -43,7 +46,26 @@ function newUser(user){
   userdb.username = user.username;
   userdb.email = user.email;
   userdb.role = "player";
-  userdb.passHash = 
+
+  userdb.salt = bcrypt.genSaltSync(10);
+  userdb.hash = bcrypt.hashSync(user.password, user.salt);
+
+  //@TODO store to the database here
+  users.push(userdb);
+  console.log(users);
+
+  return userdb;  
+}
+
+function lookupUser(userName){
+  var matches = users.select(function(val,arr,i){
+    if(typeof(val.name) != "undefined"){
+      return (val.name == userName);
+    }
+    return false;
+  });
+
+  return matches.pop();
 }
 
 exports.register = newUser;

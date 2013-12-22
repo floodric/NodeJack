@@ -1,5 +1,6 @@
 var express = require('express'),
-    path = require('path');
+    path = require('path'),
+    user = require('./models/user.js');
 
 var app = express();
 
@@ -28,7 +29,10 @@ app.get('/login',function(req,res){});
 app.post('/login',function(req,res){});
 
 // logout skeleton
-app.get('/register',function(req,res){});
+app.get('/register',function(req,res){
+  res.render('views/register',{});
+});
+
 app.post('/regster',function(req,res){});
 
 app.listen(8888);

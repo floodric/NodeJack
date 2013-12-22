@@ -6,7 +6,7 @@
     "express":"3.*",
     "socket.io":"*",
     "bcrypt":"*",
-    "ejs":"*",
+    "ejs":"*pt src="/socket.io/socket.io.js"></script",
     "mongodb":"*"
   }
 }
