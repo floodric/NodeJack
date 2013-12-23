@@ -6,13 +6,13 @@ var app = express();
 
 // global app configurations
 app.configure(function(){
+  app.use(express.cookieParser());
+  app.use(express.session({secret: 'secret key'}));
   app.set('views',__dirname,'/views');
   app.set('view engine','ejs');
   app.use(express.logger('tiny'));
   app.use(express.bodyParser());
   app.use(app.router);
-  app.use(express.cookieParser());
-  app.use(express.session({secret: '1234567890QWERTY'}));
   // static files belong in public folder
   app.use(express.static(path.join(__dirname,'public')));
 });
