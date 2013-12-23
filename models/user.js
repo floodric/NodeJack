@@ -35,7 +35,9 @@ function checkUser(user){
 
 // newUser: will try to create a user or return a list of errors
 function newUser(user){
-  if(checkUser(user).length > 0){
+  var errs = [];
+  errs = checkUser(user);
+  if(errs.length > 0){
     return errs;
   }
   if(lookupUser(user.username)){
@@ -48,7 +50,7 @@ function newUser(user){
   userdb.role = "player";
 
   userdb.salt = bcrypt.genSaltSync(10);
-  userdb.hash = bcrypt.hashSync(user.password, user.salt);
+  userdb.hash = bcrypt.hashSync(user.password, userdb.salt);
 
   //@TODO store to the database here
   users.push(userdb);
@@ -58,7 +60,7 @@ function newUser(user){
 }
 
 function lookupUser(userName){
-  var matches = users.select(function(val,arr,i){
+  var matches = users.filter(function(val,arr,i){
     if(typeof(val.name) != "undefined"){
       return (val.name == userName);
     }

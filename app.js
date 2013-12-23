@@ -19,13 +19,21 @@ app.configure(function(){
 
 
 app.get('/', function(req,res){
-  user = req.session.user;
-  res.render('views/index',{user:user});
+  if(typeof(req.session) != "undefined"){
+    user = req.session.user;
+    res.render('views/index',{user:user});
+    return;
+  }
+  res.render('views/index',{});
 });
 
 app.get('/play',function(req,res){
-  user = req.session.user;
-  res.render('views/play',{user:user});
+  if(typeof(req.session) != "undefined"){
+    user = req.session.user;
+    res.render('views/play',{user:user});
+    return;
+  }
+  res.render('views/play',{});
 });
 
 // login skeleton
@@ -42,13 +50,24 @@ app.get('/register',function(req,res){
 });
 
 app.post('/register',function(req,res){
+  // combine all the info into a user object
   var user = {};
   user.username = req.body.user.username;
   user.password = req.body.user.password;
   user.passwordconf = req.body.user.passwordconf;
   user.email = req.body.user.email;
+
+  // now send to the user model to ensure that it all works
+  user = User.register(user); 
   req.session.user = user;
-  res.render('views/index',{user:user});
+
+  if(user instanceof Array){
+    res.render('views/register',{errors:user});
+    return;
+  } else {
+    console.log('here');
+    res.redirect('views/index',{user:user});
+  }
 });
 
 app.listen(8888);

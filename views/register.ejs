@@ -6,6 +6,14 @@
   <%- include nav -%>
   <div class="pure-g-r">
     <div class="pure-u-2-3">
+      <% if(typeof(errors) != 'undefined'){ %>
+        <div class="panel">
+          <p>Sorry, something went wrong:</p>
+          <% for(var i=0; i < errors.length; i++){ %>
+            <p><%= errors[i] %></p>
+          <% } %>
+        </div>
+      <% } %>
       <form method="POST" action="/register" class="pure-form pure-form-stacked">
         <legend>Register for NodeJack</legend>
         <input name="user[username]" type="text" placeholder="username">
