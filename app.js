@@ -11,17 +11,21 @@ app.configure(function(){
   app.use(express.logger('tiny'));
   app.use(express.bodyParser());
   app.use(app.router);
+  app.use(express.cookieParser());
+  app.use(express.session({secret: '1234567890QWERTY'}));
   // static files belong in public folder
   app.use(express.static(path.join(__dirname,'public')));
 });
 
 
 app.get('/', function(req,res){
-  res.render('views/index',{});
+  user = req.session.user;
+  res.render('views/index',{user:user});
 });
 
 app.get('/play',function(req,res){
-  res.render('views/play',{});
+  user = req.session.user;
+  res.render('views/play',{user:user});
 });
 
 // login skeleton
@@ -30,6 +34,10 @@ app.post('/login',function(req,res){});
 
 // logout skeleton
 app.get('/register',function(req,res){
+  if(typeof(req.session) != "undefined"){
+    user = req.session.user;
+    res.render('views/register',{user:user});
+  }
   res.render('views/register',{});
 });
 
@@ -39,6 +47,7 @@ app.post('/register',function(req,res){
   user.password = req.body.user.password;
   user.passwordconf = req.body.user.passwordconf;
   user.email = req.body.user.email;
+  req.session.user = user;
   res.render('views/index',{user:user});
 });
 
