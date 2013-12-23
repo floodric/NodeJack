@@ -1,6 +1,6 @@
 var express = require('express'),
     path = require('path'),
-    user = require('./models/user.js');
+    User = require('./models/user.js');
 
 var app = express();
 
@@ -33,6 +33,13 @@ app.get('/register',function(req,res){
   res.render('views/register',{});
 });
 
-app.post('/regster',function(req,res){});
+app.post('/register',function(req,res){
+  var user = {};
+  user.username = req.body.user.username;
+  user.password = req.body.user.password;
+  user.passwordconf = req.body.user.passwordconf;
+  user.email = req.body.user.email;
+  res.render('views/index',{user:user});
+});
 
 app.listen(8888);

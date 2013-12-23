@@ -8,15 +8,18 @@
     <div class="pure-u-2-3">
       <form method="POST" action="/register" class="pure-form pure-form-stacked">
         <legend>Register for NodeJack</legend>
-        <input name="username" type="text" placeholder="username">
-        <input name="password" type="password" placeholder="password">
-        <input name="passwordconf" type="password" placeholder="passwordconf">
+        <input name="user[username]" type="text" placeholder="username">
+        <input name="user[email]" type="text" placeholder="email">
+        <input name="user[password]" type="password" placeholder="password">
+        <input name="user[passwordconf]" type="password" placeholder="passwordconf">
         <input type="submit">
       </form>
     </div>
+    <!--
     <div class="pure-u-1-3">
       <p>While registering for NodeJack, you implicitly agree to my terms of service.  That is to say, don't be a jerk, I am just trying to give you a game.  If you find any bugs, notify me at <a href="http://github.com/floodric/NodeJack">my github</a></p>
     </div>
+    -->
   </div>  
 </body>
 </html>

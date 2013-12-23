@@ -7,6 +7,7 @@
     <li><a href="/scores">High Scores</a></li>
     <% if(typeof(user) != "undefined"){ %>
       <li><a href="/account"><%= user.username %></a></li>
+      <li><% JSON.stringify(user) %></li>
     <% } else { %>
       <li><a href="/login">Login</a></li>
     <% } %>
