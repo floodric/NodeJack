@@ -58,7 +58,6 @@ function newUser(user,callback){
   userdb.salt = bcrypt.genSaltSync(10);
   userdb.hash = bcrypt.hashSync(user.password, userdb.salt);
 
-  //@TODO store to the database here
   Mongoclient.connect(server+db,function(err,db){
     if(err){
       errs.push(err.message); 
@@ -81,17 +80,30 @@ function newUser(user,callback){
   return; // all work is done in callbacks, so return nothing
 }
 
-function lookupUser(userId,callback){
-  var id = new ObjectId(userId);
+// lookupUser: given a field, and a matching param for that field
+//             will return a user object and a list of errors to the callback
+function lookupUser(field,param,callback){
+  if(field == "_id"){ // special type for id looking up
+    var param = new ObjectId(param);
+  }
   var errs = [];
   Mongoclient.connect(server+db,function(err,db){
     if(err){
       errs.push(err.message);
+      callback(errs,{});
       return;
     }
     var collection = db.collection('user');
-    collection.findOne({_id:id}, );
-  }
+    collection.findOne({field:param}, function(err,doc){
+      if(err){
+        errs.push(err.message);
+        callback(errs,doc);
+        db.close(); 
+        return;
+      }
+    }); // end findone
+    db.close();
+  }); // end connect
 
   /* flat javascript object example
   var matches = users.filter(function(val,arr,i){
@@ -104,5 +116,33 @@ function lookupUser(userId,callback){
   */
 }
 
+// login: given a username and password, will return an array of errors 
+//        and a user (if successful) to the callback
+function login(username,password,callback){
+  // look up the user first
+  lookupUser("username":username,function(err,user){
+    if(err){ // lookupuser failed
+      callback([err],{});
+      return;
+    }
+    if(!user){ // no user found
+      callback(["Invalid username or password"],user);
+      return;
+    }
+    bcrypt.compare(password,user.hash,function(err,res){
+      if(err){ // bcrypt failed?
+        callback(["Something went wrong"],{});
+        return;
+      }
+      if(!res){ // passwords dont match
+        callback(["Invalid username or password"],{});
+        return;
+      } 
+      callback([],user);
+    }); // end bcrypt.compare
+  }); // end lookupuser
+}
+
 exports.register = newUser;
-exports.lookup = lookupUser
+exports.lookup = lookupUser;
+exports.login = login;
