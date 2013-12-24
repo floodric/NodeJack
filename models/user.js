@@ -1,6 +1,11 @@
 var bcrypt = require('bcrypt');
 var mongo = require('mongodb');
 var mongoClient = mongo.MongoClient;
+var ObjectId = mongo.ObjectID
+
+var server = "mongodb://127.0.0.1:27017/";
+var db = "users";
+
 
 //@TODO remove our dumb list of users here
 var users = [];
@@ -34,7 +39,8 @@ function checkUser(user){
 }
 
 // newUser: will try to create a user or return a list of errors
-function newUser(user){
+//          returns to a callback function, since mongo is asynchronous
+function newUser(user,callback){
   var errs = [];
   errs = checkUser(user);
   if(errs.length > 0){
@@ -53,21 +59,49 @@ function newUser(user){
   userdb.hash = bcrypt.hashSync(user.password, userdb.salt);
 
   //@TODO store to the database here
-  users.push(userdb);
-  console.log(users);
+  Mongoclient.connect(server+db,function(err,db){
+    if(err){
+      errs.push(err.message); 
+      callback(errs,userdb);
+      return; // lets not do any more work if we failed
+    }
+    var collection = db.collection('user');
+    collection.insert(userdb,function(err,docs){
+      if(err){
+        errs.push(err.message);
+        callback(errs,userdb);
+        return; // no more work if we failed
+      }
+      db.close();
+    }); // end insert
+  }); // end server connect
 
-  return userdb;  
+//  users.push(userdb);
+//  console.log(users);
+  return; // all work is done in callbacks, so return nothing
 }
 
-function lookupUser(userName){
+function lookupUser(userId,callback){
+  var id = new ObjectId(userId);
+  var errs = [];
+  Mongoclient.connect(server+db,function(err,db){
+    if(err){
+      errs.push(err.message);
+      return;
+    }
+    var collection = db.collection('user');
+    collection.findOne({_id:id}, );
+  }
+
+  /* flat javascript object example
   var matches = users.filter(function(val,arr,i){
     if(typeof(val.name) != "undefined"){
       return (val.name == userName);
     }
     return false;
   });
-
   return matches.pop();
+  */
 }
 
 exports.register = newUser;
