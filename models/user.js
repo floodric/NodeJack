@@ -58,7 +58,7 @@ function newUser(user,callback){
   userdb.salt = bcrypt.genSaltSync(10);
   userdb.hash = bcrypt.hashSync(user.password, userdb.salt);
 
-  Mongoclient.connect(server+db,function(err,db){
+  mongoClient.connect(server+db,function(err,db){
     if(err){
       errs.push(err.message); 
       callback(errs,userdb);
@@ -87,7 +87,7 @@ function lookupUser(field,param,callback){
     var param = new ObjectId(param);
   }
   var errs = [];
-  Mongoclient.connect(server+db,function(err,db){
+  mongoClient.connect(server+db,function(err,db){
     if(err){
       errs.push(err.message);
       callback(errs,{});
@@ -98,11 +98,9 @@ function lookupUser(field,param,callback){
       if(err){
         errs.push(err.message);
         callback(errs,doc);
-        db.close(); 
         return;
       }
     }); // end findone
-    db.close();
   }); // end connect
 
   /* flat javascript object example
@@ -120,7 +118,7 @@ function lookupUser(field,param,callback){
 //        and a user (if successful) to the callback
 function login(username,password,callback){
   // look up the user first
-  lookupUser("username":username,function(err,user){
+  lookupUser("username",username,function(err,user){
     if(err){ // lookupuser failed
       callback([err],{});
       return;
