@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<head>
+  <%- include header %>
+</head>
+<body>
+  <%- include nav %>
+  <form class="pure-form" method="POST" action="/login">
+    <legend>Log in to NodeJack </legend>
+    <input type="text" name="user[name]" placeholder="username">
+    <input type="password" name="user[password]" placeholder="password">
+    <input type="submit" value="Login">
+  </form>
+  <p>Or <a href="/register">register</a></p>
+</body>
+</html>

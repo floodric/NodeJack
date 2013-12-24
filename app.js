@@ -37,8 +37,26 @@ app.get('/play',function(req,res){
 });
 
 // login skeleton
-app.get('/login',function(req,res){});
-app.post('/login',function(req,res){});
+app.get('/login',function(req,res){
+  if(typeof(req.session) != 'undefined'){
+    user = req.session.user
+    res.render('views/login',{user:user});
+    return;
+  }
+  res.render('views/login',{});
+});
+
+app.post('/login',function(req,res){
+  var username = req.body.user.name;
+  var password = req.body.user.password;
+  var user = User.login(username,password);
+  if(user instanceof Array){
+    res.render('views/login',{errors:user});
+    return;
+  }
+  req.session.user = user;
+  res.redirect('/');
+});
 
 // logout skeleton
 app.get('/register',function(req,res){
