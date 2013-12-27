@@ -3,6 +3,7 @@ var express = require('express'),
     User = require('./models/user.js'),
     passport = require('passport'),
     fs = require('fs'),
+    http = require('http'),
     https = require('https'),
     LocalStrategy = require('passport-local').Strategy;
 
@@ -36,6 +37,17 @@ app.configure(function(){
   // set up cookies and sessions with stuff
   app.use(express.cookieParser()); 
   app.use(express.session({secret: 'secret key'})); 
+
+  // If insecure connection, redirect to https connection, else run normal
+  app.use(function(req,res,next){
+    if(!req.secure){
+      console.log([typeof(req.get('Host')),req.get('Host')].join());
+      // replace http port with https port
+      var newhost = req.get('Host').replace(/8888/,"8889");
+      return res.redirect(['https://', newhost, req.url].join(''));
+    }
+    next();
+  });
 
   // set up the views in the views folder and rending with EJS
   app.set('views',__dirname,'/views'); 
@@ -123,5 +135,6 @@ app.post('/register',function(req,res){
   }
 });
 
+//http.createServer(options,app).listen(8888); // http server
 app.listen(8888);
-https.createServer(options,app).listen(8889);
+https.createServer(options,app).listen(8889); // https server
