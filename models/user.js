@@ -6,10 +6,6 @@ var ObjectId = mongo.ObjectID
 var server = "mongodb://127.0.0.1:27017/";
 var db = "users";
 
-
-//@TODO remove our dumb list of users here
-var users = [];
-
 // checkuser: validate assumptions about user, return list of errors
 function checkUser(user){
   var errs = [];
@@ -44,10 +40,10 @@ function newUser(user,callback){
   var errs = [];
   errs = checkUser(user);
   if(errs.length > 0){
-    return errs;
+    return callback(errs,{});
   }
   if(lookupUser(user.username)){
-    return ["user already exists"];
+    return callback(["user already exists"],{});
   }
 
   userdb = {};
@@ -66,11 +62,14 @@ function newUser(user,callback){
     }
     var collection = db.collection('user');
     collection.insert(userdb,function(err,docs){
+      console.log('insert' );
       if(err){
         errs.push(err.message);
         callback(errs,userdb);
         return; // no more work if we failed
       }
+      docs = docs.map(function(val){scrubUser(val)});
+      callback([],docs[0]); // [0] since we should only register one user at a time
       db.close();
     }); // end insert
   }); // end server connect
@@ -141,6 +140,18 @@ function login(username,password,callback){
   }); // end lookupuser
 }
 
+// scrub out sensitive information from the user (for passing around)
+function scrubUser(user){
+  if(typeof(user.hash) != 'undefined'){
+    delete user.hash
+  }
+  if(typeof(user.salt) != 'undefined'){
+    delete user.salt
+  }
+  return user;
+}
+
 exports.register = newUser;
 exports.lookup = lookupUser;
 exports.login = login;
+exports.scrubUser = scrubUser;

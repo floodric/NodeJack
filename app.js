@@ -41,7 +41,6 @@ app.configure(function(){
   // If insecure connection, redirect to https connection, else run normal
   app.use(function(req,res,next){
     if(!req.secure){
-      console.log([typeof(req.get('Host')),req.get('Host')].join());
       // replace http port with https port
       var newhost = req.get('Host').replace(/8888/,"8889");
       return res.redirect(['https://', newhost, req.url].join(''));
@@ -102,7 +101,7 @@ app.post('/login',function(req,res){
     return;
   }
   req.session.user = user;
-  res.redirect('/');
+  res.redirect('');
 });
 
 // logout skeleton
@@ -121,18 +120,19 @@ app.post('/register',function(req,res){
   user.password = req.body.user.password;
   user.passwordconf = req.body.user.passwordconf;
   user.email = req.body.user.email;
+  console.log(JSON.stringify(user));
 
   // now send to the user model to ensure that it all works
-  user = User.register(user); 
-  req.session.user = user;
-
-  if(user instanceof Array){
-    res.render('views/register',{errors:user});
-    return;
-  } else {
-    console.log('here');
-    res.redirect('views/index',{user:user});
-  }
+  User.register(user,function(err,userdb){
+    console.log(JSON.stringify(userdb));
+    if(user instanceof Array){
+      res.render('views/register',{errors:err});
+      return;
+    } else {
+      req.session.user = user;
+      res.redirect('https://floodric.com:8889/');
+    }
+  }); // end user registration step
 });
 
 //http.createServer(options,app).listen(8888); // http server
