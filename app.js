@@ -95,16 +95,28 @@ app.get('/login',function(req,res){
 app.post('/login',function(req,res){
   var username = req.body.user.name;
   var password = req.body.user.password;
-  var user = User.login(username,password);
-  if(user instanceof Array){
-    res.render('views/login',{errors:user});
+
+  User.login(username,password, function(user){
+    // return errors
+    if(user instanceof Array){
+      res.render('views/login',{errors:user});
+      return;
+    }
+    req.session.user = user;
+    res.redirect('');
     return;
-  }
-  req.session.user = user;
-  res.redirect('');
+  });
 });
 
 // logout skeleton
+app.post('/logout',function(req,res){
+  // destroy the session
+  delete req.session.user;
+  // redirect to home
+  res.redirect('https://floodric.com:8889/');
+});
+
+
 app.get('/register',function(req,res){
   if(typeof(req.session) != "undefined"){
     user = req.session.user;

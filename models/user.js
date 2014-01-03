@@ -39,66 +39,85 @@ function checkUser(user){
 function newUser(user,callback){
   var errs = [];
   errs = checkUser(user);
+  console.log('creating user '+JSON.stringify(user));
   if(errs.length > 0){
     return callback(errs,{});
   }
-  if(lookupUser(user.username)){
-    return callback(["user already exists"],{});
-  }
-
-  userdb = {};
-  userdb.username = user.username;
-  userdb.email = user.email;
-  userdb.role = "player";
-
-  userdb.salt = bcrypt.genSaltSync(10);
-  userdb.hash = bcrypt.hashSync(user.password, userdb.salt);
-
-  mongoClient.connect(server+db,function(err,db){
+  lookupUser("username",user.username,function(err,userdb){
+    console.log(err+'userdb'+JSON.stringify(userdb));
     if(err){
-      errs.push(err.message); 
-      callback(errs,userdb);
-      return; // lets not do any more work if we failed
+      return callback([err]);
     }
-    var collection = db.collection('user');
-    collection.insert(userdb,function(err,docs){
-      console.log('insert' );
-      if(err){
-        errs.push(err.message);
-        callback(errs,userdb);
-        return; // no more work if we failed
+    console.log('userdb'+JSON.stringify(userdb));
+    if(!userdb && typeof(userdb) != 'undefined'){
+      if(typeof(userdb.username) != 'undefined'){
+        callback(["user already exists"],{});
+        return;
       }
-      docs = docs.map(function(val){scrubUser(val)});
-      callback([],docs[0]); // [0] since we should only register one user at a time
-      db.close();
-    }); // end insert
-  }); // end server connect
+    } // we got here, means username not taken, continue as normal
 
-//  users.push(userdb);
-//  console.log(users);
+    console.log('ere');
+
+    var newuser = {};
+    newuser.username = user.username;
+    newuser.email = user.email;
+    newuser.role = "player";
+
+    newuser.salt = bcrypt.genSaltSync(10);
+    newuser.hash = bcrypt.hashSync(user.password, newuser.salt);
+
+    mongoClient.connect(server+db,function(err,db){
+      if(err){
+        errs.push(err.message); 
+        callback(errs,userdb);
+        return; // lets not do any more work if we failed
+      }
+      var collection = db.collection('users');
+      collection.insert(newuser,function(err,docs){
+        console.log('insert'+JSON.stringify(newuser) );
+        if(err){
+          errs.push(err.message);
+          console.log(err);
+          callback(errs,userdb);
+          return; // no more work if we failed
+        }
+        console.log('success!'+JSON.stringify(docs));
+        docs = docs.map(function(val){scrubUser(val)});
+        callback([],docs[0]); // [0] since we should only register one user at a time
+        db.close();
+      }); // end insert
+    }); // end server connect
+  }); // end lookupuser callback
+
   return; // all work is done in callbacks, so return nothing
 }
 
 // lookupUser: given a field, and a matching param for that field
 //             will return a user object and a list of errors to the callback
 function lookupUser(field,param,callback){
+  console.log('lookup');
   if(field == "_id"){ // special type for id looking up
     var param = new ObjectId(param);
   }
   var errs = [];
   mongoClient.connect(server+db,function(err,db){
+    console.log('connect');
     if(err){
       errs.push(err.message);
       callback(errs,{});
       return;
     }
-    var collection = db.collection('user');
+    var collection = db.collection('users');
+    console.log(JSON.stringify({field:param}));
     collection.findOne({field:param}, function(err,doc){
+      console.log('collection');
       if(err){
         errs.push(err.message);
         callback(errs,doc);
         return;
       }
+      console.log('SUCESS'+JSON.stringify(doc));
+      callback(errs,doc); // send success
     }); // end findone
   }); // end connect
 
@@ -116,22 +135,29 @@ function lookupUser(field,param,callback){
 // login: given a username and password, will return an array of errors 
 //        and a user (if successful) to the callback
 function login(username,password,callback){
+  console.log('login');
   // look up the user first
   lookupUser("username",username,function(err,user){
-    if(err){ // lookupuser failed
+    console.log('lookup');
+    if(err.length > 0){ // lookupuser failed
+      console.log('failed lookup');
       callback([err],{});
       return;
     }
     if(!user){ // no user found
+      console.log('no user');
       callback(["Invalid username or password"],user);
       return;
     }
     bcrypt.compare(password,user.hash,function(err,res){
-      if(err){ // bcrypt failed?
+      console.log('bcrypt');
+      if(err.length > 0){ // bcrypt failed?
+        console.log('failed bcrypt');
         callback(["Something went wrong"],{});
         return;
       }
       if(!res){ // passwords dont match
+        console.log('failed match');
         callback(["Invalid username or password"],{});
         return;
       } 
