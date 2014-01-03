@@ -45,15 +45,14 @@ function newUser(user,callback){
   }
   lookupUser("username",user.username,function(err,userdb){
     console.log(err+'userdb'+JSON.stringify(userdb));
-    if(err){
+    if(err && err.length > 0){
+      console.log(err);
       return callback([err]);
     }
-    console.log('userdb'+JSON.stringify(userdb));
-    if(!userdb && typeof(userdb) != 'undefined'){
-      if(typeof(userdb.username) != 'undefined'){
-        callback(["user already exists"],{});
-        return;
-      }
+    if(userdb && typeof(userdb.username) != 'undefined'){
+      console.log('failure');
+      callback(["user already exists"],{});
+      return;
     } // we got here, means username not taken, continue as normal
 
     console.log('ere');
@@ -108,8 +107,10 @@ function lookupUser(field,param,callback){
       return;
     }
     var collection = db.collection('users');
-    console.log(JSON.stringify({field:param}));
-    collection.findOne({field:param}, function(err,doc){
+    var query = {};
+    query[field] = param; // deref string, make it point to param
+    console.log(JSON.stringify(query));
+    collection.findOne(query, function(err,doc){
       console.log('collection');
       if(err){
         errs.push(err.message);

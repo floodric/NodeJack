@@ -137,11 +137,11 @@ app.post('/register',function(req,res){
   // now send to the user model to ensure that it all works
   User.register(user,function(err,userdb){
     console.log(JSON.stringify(userdb));
-    if(user instanceof Array){
+    if(userdb instanceof Array){
       res.render('views/register',{errors:err});
       return;
     } else {
-      req.session.user = user;
+      req.session.user = userdb;
       res.redirect('https://floodric.com:8889/');
     }
   }); // end user registration step
