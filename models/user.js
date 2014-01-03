@@ -117,20 +117,10 @@ function lookupUser(field,param,callback){
         callback(errs,doc);
         return;
       }
-      console.log('SUCESS'+JSON.stringify(doc));
       callback(errs,doc); // send success
     }); // end findone
   }); // end connect
 
-  /* flat javascript object example
-  var matches = users.filter(function(val,arr,i){
-    if(typeof(val.name) != "undefined"){
-      return (val.name == userName);
-    }
-    return false;
-  });
-  return matches.pop();
-  */
 }
 
 // login: given a username and password, will return an array of errors 
@@ -162,6 +152,7 @@ function login(username,password,callback){
         callback(["Invalid username or password"],{});
         return;
       } 
+      console.log('success!'+JSON.stringify(user));
       callback([],user);
     }); // end bcrypt.compare
   }); // end lookupuser

@@ -96,14 +96,15 @@ app.post('/login',function(req,res){
   var username = req.body.user.name;
   var password = req.body.user.password;
 
-  User.login(username,password, function(user){
+  User.login(username,password, function(errs,user){
     // return errors
-    if(user instanceof Array){
-      res.render('views/login',{errors:user});
+    if(errs && errs.legnth > 0){
+      console.log(errs);
+      res.render('views/login',{errors:errs});
       return;
     }
     req.session.user = user;
-    res.redirect('');
+    res.redirect('https://floodric.com:8889/');
     return;
   });
 });
