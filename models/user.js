@@ -152,7 +152,7 @@ function login(username,password,callback){
     }
     bcrypt.compare(password,user.hash,function(err,res){
       console.log('bcrypt');
-      if(err.length > 0){ // bcrypt failed?
+      if(err && err.length > 0){ // bcrypt failed?
         console.log('failed bcrypt');
         callback(["Something went wrong"],{});
         return;

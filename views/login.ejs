@@ -4,6 +4,9 @@
 </head>
 <body>
   <%- include nav %>
+  <% if(typeof(errors) != 'undefined' && errors.length > 0){ %>
+  <%= errors.join('\n') %>
+  <% } %>
   <form class="pure-form" method="POST" action="/login">
     <legend>Log in to NodeJack </legend>
     <input type="text" name="user[name]" placeholder="username">
