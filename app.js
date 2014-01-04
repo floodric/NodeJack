@@ -1,6 +1,7 @@
 var express = require('express'),
     path = require('path'),
     User = require('./models/user.js'),
+    Routes = require('./routes/routes.js'),
     passport = require('passport'),
     fs = require('fs'),
     http = require('http'),
@@ -64,89 +65,20 @@ app.configure(function(){
 });
 
 
-app.get('/', function(req,res){
-  if(typeof(req.session) != "undefined"){
-    user = req.session.user;
-    res.render('views/index',{user:user});
-    return;
-  }
-  res.render('views/index',{});
-});
-
-app.get('/play',function(req,res){
-  if(typeof(req.session) != "undefined"){
-    user = req.session.user;
-    res.render('views/play',{user:user});
-    return;
-  }
-  res.render('views/play',{});
-});
+app.get('/', Routes.index);
+app.get('/play',Routes.play);
 
 // login skeleton
-app.get('/login',function(req,res){
-  if(typeof(req.session) != 'undefined'){
-    user = req.session.user
-    res.render('views/login',{user:user});
-    return;
-  }
-  res.render('views/login',{});
-});
-
-app.post('/login',function(req,res){
-  var username = req.body.user.name;
-  var password = req.body.user.password;
-
-  User.login(username,password, function(errs,user){
-    // return errors
-    if(errs && errs.legnth > 0){
-      console.log(errs);
-      res.render('views/login',{errors:errs});
-      return;
-    }
-    req.session.user = user;
-    res.redirect('https://floodric.com:8889/');
-    return;
-  });
-});
+app.get('/login',Routes.login);
+app.post('/login',Routes.auth);
 
 // logout skeleton
-app.post('/logout',function(req,res){
-  // destroy the session
-  delete req.session.user;
-  // redirect to home
-  res.redirect('https://floodric.com:8889/');
-});
+app.get('/logout',Routes.logout);
+app.post('/logout',Routes.logout);
 
 
-app.get('/register',function(req,res){
-  if(typeof(req.session) != "undefined"){
-    user = req.session.user;
-    res.render('views/register',{user:user});
-  }
-  res.render('views/register',{});
-});
-
-app.post('/register',function(req,res){
-  // combine all the info into a user object
-  var user = {};
-  user.username = req.body.user.username;
-  user.password = req.body.user.password;
-  user.passwordconf = req.body.user.passwordconf;
-  user.email = req.body.user.email;
-  console.log(JSON.stringify(user));
-
-  // now send to the user model to ensure that it all works
-  User.register(user,function(err,userdb){
-    console.log(JSON.stringify(userdb));
-    if(userdb instanceof Array){
-      res.render('views/register',{errors:err});
-      return;
-    } else {
-      req.session.user = userdb;
-      res.redirect('https://floodric.com:8889/');
-    }
-  }); // end user registration step
-});
+app.get('/register',Routes.register);
+app.post('/register',Routes.newUser);
 
 //http.createServer(options,app).listen(8888); // http server
 app.listen(8888);
